@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="drawer_logout">Logout</string>
+    <string name="perm_denied">Không có quyền.</string>
+    <string name="logout_title">Xác nhận đăng xuất</string>
+    <string name="logout_message">Bạn có chắc chắn muốn đăng xuất không?</string>
+    <string name="logout_yes">Logout</string>
+    <string name="logout_no">Hủy bỏ</string>
+    <string name="map_type">Loại bản đồ</string>
+    <string name="email">E-mail</string>
+    <string name="login">Đăng nhập</string>
+    <string name="maps">Bản đồ</string>
+</resources>

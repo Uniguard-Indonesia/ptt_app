@@ -1,0 +1,156 @@
+/*
+ * Copyright (C) 2014 Andrew Comminos
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url "https://jitpack.io" }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.4'
+    }
+}
+apply plugin: 'com.android.application'
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+def gitDescribe = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine "git", "describe", "--tags", "--always"
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+def signingFile = rootProject.file('signing.gradle')
+if (signingFile.exists()) apply from: signingFile
+
+allprojects {
+    tasks.withType(JavaCompile) {
+        // TODO include deprecations at some point, but currently they are *many*
+        options.compilerArgs << "-Xlint:all" << "-Xlint:-deprecation" << "-Xlint:-dep-ann"
+    }
+}
+
+android {
+    namespace 'com.uniguard.ptt_app'
+    compileSdk 35
+
+    // gradle8: Need to enable this when defaultConfig below contains some custom BuildConfig
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        minSdkVersion 23
+        targetSdk 35
+        multiDexEnabled true
+
+        applicationId "com.uniguard.ptt_app"
+        versionCode 8
+        versionName "1.0.4"
+
+        resourceConfigurations += ["en", "ar", "ca", "cs", "de", "el", "es", "fi", "fr", "hu", "it", "ja", "nb-rNO", "nl", "pl", "pt", "pt-rBR", "ru", "sv", "th", "tr", "uk", "zh-rCN"]
+
+        setProperty("archivesBaseName", "ptt")
+        buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
+
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+    }
+
+    flavorDimensions "release"
+    productFlavors {
+        official {
+            dimension "release"
+            applicationId "com.uniguard.ptt_app"
+        }
+        donation {
+            dimension "release"
+            applicationId "com.uniguard.ptt_app.donation"
+        }
+        beta {
+            dimension "release"
+            applicationId "com.uniguard.ptt_app.beta"
+        }
+    }
+
+    buildTypes {
+        release {
+            if (signingConfigs.hasProperty("release")) {
+                signingConfig signingConfigs.release
+            }
+        }
+        debug {
+            versionNameSuffix "-debug"
+            if (signingConfigs.hasProperty("beta")) {
+                signingConfig signingConfigs.beta
+            }
+        }
+    }
+
+    lint {
+        abortOnError true
+        // InvalidPackage is spongycastle-related
+        disable 'InvalidPackage', 'MissingTranslation'
+        explainIssues true
+        ignoreWarnings false
+        quiet false
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.flavorName == "beta") {
+            variant.outputs.each { output ->
+                output.versionCodeOverride = System.currentTimeSeconds() / 60
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation project(":libraries:humla")
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'androidx.fragment:fragment:1.4.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.exifinterface:exifinterface:1.3.3'
+    implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'info.guardianproject.netcipher:netcipher:2.1.0'
+
+    // Google material
+    implementation 'com.google.android.material:material:1.8.0'
+
+
+    // Rest API
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+
+    implementation 'com.google.guava:guava:31.1-android'
+
+    // Maps and Location
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+
+    implementation 'com.google.code.gson:gson:2.8.9'
+}

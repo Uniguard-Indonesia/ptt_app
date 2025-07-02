@@ -1,0 +1,36 @@
+ext {
+    // Define properties for release signing
+    releaseStoreFile = "path"
+    releaseStorePassword = "password"
+    releaseKeyAlias = "alias"
+    releaseKeyPassword = "password"
+
+    // Define properties for beta signing
+    betaStoreFile = "path"
+    betaStorePassword = "password"
+    betaKeyAlias = "alias"
+    betaKeyPassword = "password"
+}
+
+android {
+    signingConfigs {
+        release {
+            storeFile = file(releaseStoreFile)
+            storePassword = releaseStorePassword
+            keyAlias = releaseKeyAlias
+            keyPassword = releaseKeyPassword
+        }
+        beta {
+            storeFile = file(betaStoreFile)
+            storePassword = betaStorePassword
+            keyAlias = betaKeyAlias
+            keyPassword = betaKeyPassword
+        }
+        donation {
+            storeFile = file(releaseStoreFile)
+            storePassword = releaseStorePassword
+            keyAlias = releaseKeyAlias
+            keyPassword = releaseKeyPassword
+        }
+    }
+}

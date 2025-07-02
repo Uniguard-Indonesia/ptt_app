@@ -1,0 +1,24 @@
+# Gradle / Android Studio
+build/
+.idea/
+.gradle/
+*.iml
+signing.gradle
+
+# Eclipse
+bin/
+gen/
+.settings/
+.classpath
+.project
+
+# Android
+local.properties
+
+# Java
+*.class
+
+# Libraries
+libraries/
+
+git_token.txt
